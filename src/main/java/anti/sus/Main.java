@@ -7,13 +7,25 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class Main {
     private static final File WORKING_DIRECTORY = new File(System.getProperty("user.dir"));
     private static final File ENV_FILE = new File(WORKING_DIRECTORY, ".env");
-    public static void main(String[] args) {
+    private static final Queue<Runnable> scheduledTasks;
+
+    static {
+        scheduledTasks = new SchedulerQueue<>();
+    }
+
+    public static void main(String[] args) throws DatabaseException {
         createFiles();
         final JDA jda;
+        scheduledTasks.forEach(Runnable::run);
+    public static void runSync(final Runnable task) {
+        scheduledTasks.add(task);
+    }
     }
 
     private static void createFiles() {
@@ -52,5 +64,14 @@ public final class Main {
         }
 
         throw new IllegalStateException("Assertion failed: " + assertionDescription);
+    }
+
+    //Utility class that wipes the queue whenever forEach is called
+    private static final class SchedulerQueue<E> extends ConcurrentLinkedQueue<E> {
+        @Override
+        public void forEach(final Consumer<? super E> elementConsumer) {
+            super.forEach(elementConsumer);
+            super.clear();
+        }
     }
 }
