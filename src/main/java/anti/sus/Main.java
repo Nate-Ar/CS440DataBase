@@ -1,5 +1,6 @@
 package anti.sus;
 
+import anti.sus.database.DatabaseStorage;
 import net.dv8tion.jda.api.JDA;
 
 import java.io.File;
@@ -9,6 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
+
+import static anti.sus.database.DatabaseStorage.*;
 
 public final class Main {
     private static final File WORKING_DIRECTORY = new File(System.getProperty("user.dir"));
@@ -21,11 +25,27 @@ public final class Main {
 
     public static void main(String[] args) throws DatabaseException {
         createFiles();
+
+        final DatabaseStorage databaseStorage = new DatabaseStorage(ENV_FILE);
         final JDA jda;
+
+        //Example of retrieving a String departmentName from a table employees, where
+        //the employee is named Bill, in this example we're assuming "Bill" is some untrusted input
+        final SqlQuery query = safeQuery("SELECT departmentName FROM employees WHERE employeeName = ?", "Bill");
+        databaseStorage.forEachObject(query, queryResult ->
+            doSomethingWithTheDepartmentName(queryResult.get("departmentName").asString()));
+
+
+        databaseStorage.shutdown();
         scheduledTasks.forEach(Runnable::run);
+    }
+
     public static void runSync(final Runnable task) {
         scheduledTasks.add(task);
     }
+
+    private static void doSomethingWithTheDepartmentName(final String departmentName) {
+        System.out.println("Department name: " + departmentName);
     }
 
     private static void createFiles() {
