@@ -1,4 +1,6 @@
-package anti.sus;
+package anti.sus.async;
+
+import anti.sus.Main;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;

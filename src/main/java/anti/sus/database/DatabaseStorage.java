@@ -1,6 +1,6 @@
 package anti.sus.database;
 
-import anti.sus.Worker;
+import anti.sus.async.Worker;
 
 import java.io.File;
 import java.io.FileInputStream;
