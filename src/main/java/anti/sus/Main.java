@@ -38,10 +38,7 @@ public final class Main {
     public static void main(String[] args) throws DatabaseException {
         createFiles();
         final DatabaseStorage databaseStorage = new DatabaseStorage(ENV_PROPS);
-        final DiscordBot discordBot = new DiscordBot(ENV_PROPS);
-        final JDA jda;
-        JDA api = JDABuilder.createDefault(discordBot.Token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT).build();
-        api.addEventListener( new helloworld());
+        final DiscordBot discordBot = new DiscordBot(ENV_PROPS, databaseStorage);
         //Example of retrieving a String departmentName from a table employees, where
         //the employee is named Bill, in this example we're assuming "Bill" is some untrusted input
         final SqlQuery query = safeQuery("SELECT departmentName FROM employees WHERE employeeName = ?", "Bill");
@@ -119,24 +116,6 @@ public final class Main {
         public void forEach(final Consumer<? super E> elementConsumer) {
             super.forEach(elementConsumer);
             super.clear();
-        }
-    }
-    public static class helloworld extends ListenerAdapter
-    {
-        @Override
-        public void onMessageReceived(MessageReceivedEvent event)
-        {
-            if (event.getAuthor().isBot()) return;
-            // We don't want to respond to other bot accounts, including ourself
-            Message message = event.getMessage();
-            String content = message.getContentRaw();
-            // getContentRaw() is an atomic getter
-            // getContentDisplay() is a lazy getter which modifies the content for e.g. console view (strip discord formatting)
-            if (content.equals("!ping"))
-            {
-                MessageChannel channel = event.getChannel();
-                channel.sendMessage("Pong!").queue(); // Important to call .queue() on the RestAction returned by sendMessage(...)
-            }
         }
     }
 }
