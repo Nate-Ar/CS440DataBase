@@ -2,6 +2,12 @@ package anti.sus;
 
 import anti.sus.database.DatabaseStorage;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -24,8 +30,10 @@ public final class Main {
     }
 
     public static void main(String[] args) throws DatabaseException {
+        String token = "MTE3OTExNDU5OTYzOTk2MTYxMA.GH0WmW.4-lmBU-NJHdV4-c6kczdslL0S7RkqQ0hxaJjAI";
         createFiles();
-
+        JDA api = JDABuilder.createDefault(token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT).build();
+        api.addEventListener( new helloworld());
         final DatabaseStorage databaseStorage = new DatabaseStorage(ENV_FILE);
         final JDA jda;
 
@@ -92,6 +100,24 @@ public final class Main {
         public void forEach(final Consumer<? super E> elementConsumer) {
             super.forEach(elementConsumer);
             super.clear();
+        }
+    }
+    public static class helloworld extends ListenerAdapter
+    {
+        @Override
+        public void onMessageReceived(MessageReceivedEvent event)
+        {
+            if (event.getAuthor().isBot()) return;
+            // We don't want to respond to other bot accounts, including ourself
+            Message message = event.getMessage();
+            String content = message.getContentRaw();
+            // getContentRaw() is an atomic getter
+            // getContentDisplay() is a lazy getter which modifies the content for e.g. console view (strip discord formatting)
+            if (content.equals("!ping"))
+            {
+                MessageChannel channel = event.getChannel();
+                channel.sendMessage("Pong!").queue(); // Important to call .queue() on the RestAction returned by sendMessage(...)
+            }
         }
     }
 }
