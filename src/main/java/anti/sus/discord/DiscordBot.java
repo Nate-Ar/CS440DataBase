@@ -1,11 +1,15 @@
 package anti.sus.discord;
-import java.io.File;
+import anti.sus.async.Worker;
+
 import java.util.Properties;
 
 public class DiscordBot {
-    public String Token="";
+    private static final int NUM_THREADS = 6;
+    private final Worker discordWorker;
+    private final String token;
 
     public DiscordBot(final Properties envFile){
-        this.Token = envFile.getProperty("bot-token");
+        this.discordWorker = new Worker(NUM_THREADS);
+        this.token = envFile.getProperty("bot-token");
     }
 }
