@@ -1,6 +1,7 @@
 package anti.sus;
 
 import anti.sus.database.DatabaseStorage;
+import anti.sus.discord.DiscordBot;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -21,11 +22,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
 import static anti.sus.database.DatabaseStorage.*;
+import static anti.sus.discord.DiscordBot.*;
 
 public final class Main {
     private static final File WORKING_DIRECTORY = new File(System.getProperty("user.dir"));
     private static final File ENV_FILE = new File(WORKING_DIRECTORY, ".env");
     private static final Properties ENV_PROPS = loadProperties(ENV_FILE);
+
     private static final Queue<Runnable> scheduledTasks;
 
     static {
@@ -33,13 +36,12 @@ public final class Main {
     }
 
     public static void main(String[] args) throws DatabaseException {
-        String token = "MTE3OTExNDU5OTYzOTk2MTYxMA.GH0WmW.4-lmBU-NJHdV4-c6kczdslL0S7RkqQ0hxaJjAI";
         createFiles();
-        JDA api = JDABuilder.createDefault(token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT).build();
-        api.addEventListener( new helloworld());
         final DatabaseStorage databaseStorage = new DatabaseStorage(ENV_PROPS);
+        final DiscordBot discordBot = new DiscordBot(ENV_PROPS);
         final JDA jda;
-
+        JDA api = JDABuilder.createDefault(discordBot.Token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT).build();
+        api.addEventListener( new helloworld());
         //Example of retrieving a String departmentName from a table employees, where
         //the employee is named Bill, in this example we're assuming "Bill" is some untrusted input
         final SqlQuery query = safeQuery("SELECT departmentName FROM employees WHERE employeeName = ?", "Bill");
