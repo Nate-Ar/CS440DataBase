@@ -1,6 +1,7 @@
 package anti.sus.database;
 
 import anti.sus.async.Worker;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -69,11 +70,13 @@ public final class DatabaseStorage {
      * @param sqlQuery The SQL query, constructed with safeQuery()
      * @param numRowsAffectedConsumer What to do with the amount of rows affected by the query
      */
-    public void update(final SqlQuery sqlQuery, final Consumer<Integer> numRowsAffectedConsumer) {
+    public void update(final SqlQuery sqlQuery, @Nullable final Consumer<Integer> numRowsAffectedConsumer) {
         final CompletableFuture<Integer> intFuture =
                 this.databaseWorker.submitWork(() -> update0(sqlQuery));
 
-        intFuture.thenAccept(numRowsAffectedConsumer);
+        if (numRowsAffectedConsumer != null) {
+            intFuture.thenAccept(numRowsAffectedConsumer);
+        }
     }
 
 
