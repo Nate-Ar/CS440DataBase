@@ -10,10 +10,12 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
@@ -23,6 +25,7 @@ import static anti.sus.database.DatabaseStorage.*;
 public final class Main {
     private static final File WORKING_DIRECTORY = new File(System.getProperty("user.dir"));
     private static final File ENV_FILE = new File(WORKING_DIRECTORY, ".env");
+    private static final Properties ENV_PROPS = loadProperties(ENV_FILE);
     private static final Queue<Runnable> scheduledTasks;
 
     static {
@@ -34,7 +37,7 @@ public final class Main {
         createFiles();
         JDA api = JDABuilder.createDefault(token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT).build();
         api.addEventListener( new helloworld());
-        final DatabaseStorage databaseStorage = new DatabaseStorage(ENV_FILE);
+        final DatabaseStorage databaseStorage = new DatabaseStorage(ENV_PROPS);
         final JDA jda;
 
         //Example of retrieving a String departmentName from a table employees, where
@@ -84,6 +87,20 @@ public final class Main {
 
         System.out.println(".env file created! Please populate it with your Discord Application Token and restart the application!");
         System.exit(2);
+    }
+
+    public static Properties loadProperties(final File propertiesFile) throws DatabaseException {
+        final Properties properties = new Properties();
+
+        try (final FileInputStream fileInputStream = new FileInputStream(propertiesFile)) {
+            properties.load(fileInputStream);
+        } catch (final FileNotFoundException ex) {
+            throw new DatabaseException("Caller didn't perform file exist check!", ex);
+        } catch (final IOException ex) {
+            throw new DatabaseException("IOException while loading .env file!", ex);
+        }
+
+        return properties;
     }
 
     public static void assertState(final boolean expression, final String assertionDescription) {

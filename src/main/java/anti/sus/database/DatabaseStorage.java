@@ -3,10 +3,6 @@ package anti.sus.database;
 import anti.sus.async.Worker;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -26,9 +22,8 @@ public final class DatabaseStorage {
     private final Connection connection;
     private final Worker databaseWorker;
 
-    public DatabaseStorage(final File envFile) throws DatabaseException {
+    public DatabaseStorage(final Properties envProperties) throws DatabaseException {
         this.databaseWorker = new Worker(NUM_THREADS);
-        final Properties envProperties = loadProperties(envFile);
         final String host = envProperties.getProperty("db-host");
         final String port = envProperties.getProperty("db-port");
         final String database = envProperties.getProperty("db-database");
@@ -169,19 +164,7 @@ public final class DatabaseStorage {
         return result;
     }
 
-    private static Properties loadProperties(final File propertiesFile) throws DatabaseException {
-        final Properties properties = new Properties();
 
-        try (final FileInputStream fileInputStream = new FileInputStream(propertiesFile)) {
-            properties.load(fileInputStream);
-        } catch (final FileNotFoundException ex) {
-            throw new DatabaseException("Caller didn't perform file exist check!", ex);
-        } catch (final IOException ex) {
-            throw new DatabaseException("IOException while loading .env file!", ex);
-        }
-
-        return properties;
-    }
 
     public static final class SqlQuery {
         private final String sql;
