@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -22,17 +21,19 @@ public final class DatabaseStorage {
     private final Connection connection;
     private final Worker databaseWorker;
 
-    public DatabaseStorage(final Properties envProperties) throws DatabaseException {
+    public DatabaseStorage() throws DatabaseException {
         this.databaseWorker = new Worker(NUM_THREADS);
-        final String host = envProperties.getProperty("db-host");
-        final String port = envProperties.getProperty("db-port");
-        final String database = envProperties.getProperty("db-database");
-        final String username = envProperties.getProperty("db-user");
-        final String password = envProperties.getProperty("db-password");
 
         try {
+            final String host = "127.0.0.1";
+            final String port = "3306";
+            final String database = "discordfilter";
             final String url = "jdbc:mariadb://" + host + ':' + port + '/' + database;
 
+            final String username = "discordfilter";
+            final String password = "";
+
+            System.out.println("Attempting to connect to database on: " + url);
             this.connection = DriverManager.getConnection(url, username, password);
         } catch (final SQLException ex) {
             throw new DatabaseException("Initializing database connection failed!", ex);
