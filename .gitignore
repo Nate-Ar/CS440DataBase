@@ -36,3 +36,11 @@ build/
 
 ### ENV files ###
 *.env
+
+### Docker compose file ###
+
+### Database files ###
+db_data/
+
+### Compiled Jars ###
+DiscordChatFilter/build/

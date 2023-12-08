@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  discordfilter:
+    image: discordfilter:latest
+    networks:
+      - discordfilter
+    volumes:
+      - ./db_data:/var/lib/mysql
+    tty: true
+    stdin_open: true
+    environment:
+      BOT_TOKEN: paste token here
+networks:
+  discordfilter:
