@@ -11,6 +11,10 @@ if [ ! "$(command -v mvn)" ]; then
   exit 1
 fi
 
+if [ ! -d DiscordChatFilter/build ]; then
+  mkdir DiscordChatFilter/build
+fi
+
 mvn package
 rm target/original-DiscordChatFilter.jar
 cp target/DiscordChatFilter.jar DiscordChatFilter/build/DiscordChatFilter.jar
