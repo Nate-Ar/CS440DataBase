@@ -33,7 +33,7 @@ echo "MariaDB server finished startup. PID: " $pid
 echo "Dropping privileges to user discordfilter"
 echo ""
 echo "Running DiscordChatFilter.jar"
-su root -s /bin/ash -c "java -jar /init/DiscordChatFilter.jar"
+su discordfilter -s /bin/ash -c "java -jar /init/DiscordChatFilter.jar"
 
 echo "JVM exited, shutting down container..."
 shutdown
