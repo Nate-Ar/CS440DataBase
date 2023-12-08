@@ -78,7 +78,7 @@ public final class DatabaseStorage {
 
     public void initTables() {
         System.out.println("Initializing tables...");
-        final SqlQuery messagesTable = safeQuery("CREATE TABLE IF NOT EXISTS MESSAGES (messageID INT PRIMARY KEY, authorID INT NOT NULL, channelID INT NOT NULL, timeSent INT NOT NULL, messageContent TEXT NOT NULL);");
+        final SqlQuery messagesTable = safeQuery("CREATE TABLE IF NOT EXISTS MESSAGES (messageID INT PRIMARY KEY, authorID INT NOT NULL, channelID INT NOT NULL, timeSent INT NOT NULL, messageContent TEXT NOT NULL, filtered BOOLEAN NOT NULL DEFAULT FALSE);");
         this.update(messagesTable, null);
         final SqlQuery usersTable = safeQuery("CREATE TABLE IF NOT EXISTS USERS (userID INT PRIMARY KEY, userName TEXT NOT NULL, numViolations INT NOT NULL DEFAULT 0);");
         this.update(usersTable, null);
