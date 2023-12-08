@@ -1,0 +1,7 @@
+USE mysql;
+FLUSH PRIVILEGES;
+CREATE DATABASE IF NOT EXISTS discordfilter;
+CREATE USER 'discordfilter'@'127.0.0.1';
+GRANT ALL ON discordfilter.* TO 'discordfilter'@'127.0.0.1' IDENTIFIED BY '';
+DROP DATABASE IF EXISTS test;
+FLUSH PRIVILEGES;
