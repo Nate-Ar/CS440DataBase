@@ -9,6 +9,6 @@ services:
     tty: true
     stdin_open: true
     environment:
-      BOT_TOKEN: paste token here
+      BOT_TOKEN: MTE4MTc0OTg0ODI1MzQxNTUxNQ.GvmFCO.uCvgywNOoMaYpQd49m7Fd-Mr4ndZ1pwz6fg6SU
 networks:
   discordfilter:
