@@ -30,10 +30,9 @@ public final class DatabaseStorage {
             final String database = "discordfilter";
             final String url = "jdbc:mariadb://" + host + ':' + port + '/' + database;
 
+            System.out.println("Attempting to connect to database on: " + url);
             final String username = "discordfilter";
             final String password = "";
-
-            System.out.println("Attempting to connect to database on: " + url);
             this.connection = DriverManager.getConnection(url, username, password);
         } catch (final SQLException ex) {
             throw new DatabaseException("Initializing database connection failed!", ex);
