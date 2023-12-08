@@ -19,7 +19,6 @@ public final class Main {
         System.out.println("Shutdown initiated!");
         discordChatFilter.shutdown();
         System.out.println("Shutdown complete!");
-        new File("/var/lib/mysql/sus").mkdirs();
     }
 
     private static Thread getShutdownThread() {
