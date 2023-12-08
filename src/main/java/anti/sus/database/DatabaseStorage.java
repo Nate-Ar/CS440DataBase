@@ -34,6 +34,8 @@ public final class DatabaseStorage {
             final String username = "discordfilter";
             final String password = "";
             this.connection = DriverManager.getConnection(url, username, password);
+
+            this.initTables();
         } catch (final SQLException ex) {
             throw new DatabaseException("Initializing database connection failed!", ex);
         }
@@ -73,6 +75,22 @@ public final class DatabaseStorage {
             intFuture.thenAccept(numRowsAffectedConsumer);
         }
     }
+
+    public void initTables() {
+        System.out.println("Initializing tables...");
+        final SqlQuery messagesTable = safeQuery("CREATE TABLE IF NOT EXISTS MESSAGES (messageID INT PRIMARY KEY, authorID INT NOT NULL, channelID INT NOT NULL, timeSent INT NOT NULL, messageContent TEXT NOT NULL);");
+        this.update(messagesTable, null);
+        final SqlQuery usersTable = safeQuery("CREATE TABLE IF NOT EXISTS USERS (userID INT PRIMARY KEY, userName TEXT NOT NULL, numViolations INT NOT NULL DEFAULT 0);");
+        this.update(usersTable, null);
+        final SqlQuery flaggedMessagesTable = safeQuery("CREATE TABLE IF NOT EXISTS FLAGGED_MESSAGES (messageID INT PRIMARY KEY, filterID INT NOT NULL);");
+        this.update(flaggedMessagesTable, null);
+        final SqlQuery filteredWordsTable = safeQuery("CREATE TABLE IF NOT EXISTS FILTERED_WORDS (filterWordID INT PRIMARY KEY, filterWord TEXT NOT NULL, replacement TEXT NOT NULL);");
+        this.update(filteredWordsTable, null);
+        final SqlQuery adminsTable = safeQuery("CREATE TABLE IF NOT EXISTS ADMINS (userID INT PRIMARY KEY);");
+        this.update(adminsTable, null);
+        final SqlQuery filteredChannelsTable = safeQuery("CREATE TABLE IF NOT EXISTS FILTERED_CHANNELS (channelID INT PRIMARY KEY);");
+        this.update(filteredChannelsTable, null);
+        }
 
 
     /**
