@@ -6,39 +6,72 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
+
+import java.time.Duration;
+import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 
 public class DiscordBot {
-    private final String token;
-
-    private final DatabaseStorage databaseStorage;
-    private JDA api;
+    private static final Duration MAX_SHUTDOWN_TIME = Duration.ofSeconds(15L);
+    private static final Collection<GatewayIntent> INTENTS = List.of(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT);
+    private static final Collection<CacheFlag> DISABLED_CACHES = List.of(CacheFlag.VOICE_STATE, CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.SCHEDULED_EVENTS, CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS);
+    private final JDA api;
 
     public DiscordBot(final Properties envFile, DatabaseStorage databaseStorage){
-        this.token = envFile.getProperty("bot-token");
-        this.api = JDABuilder.createDefault(token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT).build();
-        this.api.addEventListener( new MessageHandler());
-        this.databaseStorage = databaseStorage;
-
+        final String token = envFile.getProperty("bot-token");
+        final JDABuilder jdaBuilder = JDABuilder.create(token, INTENTS).disableCache(DISABLED_CACHES);
+        this.api = jdaBuilder.build();
+        this.api.addEventListener( new MessageHandler(databaseStorage));
     }
+
+    public void shutdown() {
+        this.api.shutdown();
+
+        boolean shutdownGracefully;
+
+        try {
+            shutdownGracefully = this.api.awaitShutdown(MAX_SHUTDOWN_TIME);
+        } catch (final InterruptedException ex) {
+            System.out.println("Discord bot shutdown was interrupted!");
+            shutdownGracefully = false;
+        }
+
+        if (!shutdownGracefully) {
+            System.out.println("Shutting down the discord bot was either interrupted or timed out!");
+        }
+    }
+
     private static class MessageHandler extends ListenerAdapter{
-        String content;
-        String auther;
-        String id;
-        String channel;
+        private final DatabaseStorage databaseStorage;
+
+        private MessageHandler(final DatabaseStorage databaseStorage) {
+            this.databaseStorage = databaseStorage;
+        }
 
 //        retrieving the data from discord about messages
-        public void onMessageReceived(MessageReceivedEvent event){
-            if (event.getAuthor().isBot()) return;
-            Message message = event.getMessage();
-            content = message.getContentRaw();
-            auther = String.valueOf(event.getAuthor());
-            id = message.getId();
-            channel = String.valueOf(event.getChannel());
+        @Override
+        public void onMessageReceived(final MessageReceivedEvent event){
+            if (event.getAuthor().isBot()) {
+                return;
+            }
+
+            final Message message = event.getMessage();
+            final String content = message.getContentRaw();
+            final String author = String.valueOf(event.getAuthor());
+            final String id = message.getId();
+            final String channel = String.valueOf(event.getChannel());
+
+            System.out.println("Message received!" +
+                    "Content: " + content +
+                    "Author: " + author +
+                    "ID: " + id +
+                    "Channel: " + channel);
 
         }
 //        pushing data to db
-        public void AddShit(){
+        public void addShit(){
             return;
         }
 
