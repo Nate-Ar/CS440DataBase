@@ -19,5 +19,5 @@ mvn package
 rm target/original-DiscordChatFilter.jar
 cp target/DiscordChatFilter.jar DiscordChatFilter/build/DiscordChatFilter.jar
 docker build -t discordfilter:latest DiscordChatFilter
-docker compose run --rm discordfilter
+docker-compose run --rm discordfilter
 docker network rm discordchatfilter_discordfilter

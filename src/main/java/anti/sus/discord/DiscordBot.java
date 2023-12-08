@@ -43,16 +43,16 @@ public class DiscordBot {
         }
     }
 
-    private static class MessageHandler extends ListenerAdapter{
+    private static class MessageHandler extends ListenerAdapter {
         private final DatabaseStorage databaseStorage;
 
         private MessageHandler(final DatabaseStorage databaseStorage) {
             this.databaseStorage = databaseStorage;
         }
 
-//        retrieving the data from discord about messages
+        //        retrieving the data from discord about messages
         @Override
-        public void onMessageReceived(final MessageReceivedEvent event){
+        public void onMessageReceived(final MessageReceivedEvent event) {
             if (event.getAuthor().isBot()) {
                 return;
             }
@@ -70,11 +70,6 @@ public class DiscordBot {
                     "Channel: " + channel);
 
         }
-//        pushing data to db
-        public void addShit(){
-            return;
-        }
-
     }
 
 }
