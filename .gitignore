@@ -38,6 +38,7 @@ build/
 *.env
 
 ### Docker compose file ###
+docker-compose.yml
 
 ### Database files ###
 db_data/
