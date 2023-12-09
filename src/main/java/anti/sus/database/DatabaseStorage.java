@@ -84,7 +84,7 @@ public final class DatabaseStorage {
         this.update(usersTable, null);
         final SqlQuery flaggedMessagesTable = safeQuery("CREATE TABLE IF NOT EXISTS FLAGGED_MESSAGES (messageID BIGINT PRIMARY KEY, filterID INT NOT NULL);");
         this.update(flaggedMessagesTable, null);
-        final SqlQuery filteredWordsTable = safeQuery("CREATE TABLE IF NOT EXISTS FILTERED_WORDS (filterWordID INT PRIMARY KEY, filterWord TEXT NOT NULL, replacement TEXT NOT NULL);");
+        final SqlQuery filteredWordsTable = safeQuery("CREATE TABLE IF NOT EXISTS FILTERED_WORDS (filterWord TEXT PRIMARY KEY, replacement TEXT NOT NULL);");
         this.update(filteredWordsTable, null);
         final SqlQuery adminsTable = safeQuery("CREATE TABLE IF NOT EXISTS ADMINS (userID BIGINT PRIMARY KEY);");
         this.update(adminsTable, null);
