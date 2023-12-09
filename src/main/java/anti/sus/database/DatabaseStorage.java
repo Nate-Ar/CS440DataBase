@@ -45,6 +45,10 @@ public final class DatabaseStorage {
         }
     }
 
+    public List<FilterWord> getFilteredWords() {
+        return new ArrayList<>(filteredWords);
+    }
+
     private void loadFilterWords() {
         SqlQuery allFilters = safeQuery("SELECT * FROM FILTERED_WORDS;");
         forEachObject(allFilters, response -> {
