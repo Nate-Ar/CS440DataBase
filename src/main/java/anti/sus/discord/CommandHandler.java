@@ -138,7 +138,7 @@ public class CommandHandler extends ListenerAdapter {
     private void removeChannelFromFilterList(SlashCommandInteractionEvent event) {
         final GuildChannelUnion channel = event.getOption("channel").getAsChannel();
         final long oldChannelId = channel.getIdLong();
-        SqlQuery listOfchannelsQuery = safeQuery("FROM FILTERED_CHANNELS SELECT *;");
+        SqlQuery listOfchannelsQuery = safeQuery("SELECT * FROM FILTERED_CHANNELS;");
         databaseStorage.forEachObject(listOfchannelsQuery, row -> {
             if (row.get("channelID").asLong() == oldChannelId) {
                 removeChannelFromList(event, oldChannelId);
