@@ -20,7 +20,7 @@ public class DiscordBot {
     public DiscordBot(final Properties envFile, DatabaseStorage databaseStorage) {
         final String token = envFile.getProperty("bot-token");
         final JDABuilder jdaBuilder = JDABuilder.create(token, INTENTS).disableCache(DISABLED_CACHES);
-        this.api = jdaBuilder.build();
+        this.api = startup(jdaBuilder);
 
         final CommandHandler commandHandler = new CommandHandler(databaseStorage);
         this.api.getGuilds().forEach(commandHandler::registerCommands);
@@ -42,6 +42,14 @@ public class DiscordBot {
 
         if (!shutdownGracefully) {
             System.out.println("Shutting down the discord bot was either interrupted or timed out!");
+        }
+    }
+
+    private static JDA startup(final JDABuilder jdaBuilder) {
+        try {
+            return jdaBuilder.build().awaitReady();
+        } catch (final InterruptedException ex) {
+            throw new IllegalStateException("Thread interrupted while logging in to the Bridge!", ex);
         }
     }
 }
