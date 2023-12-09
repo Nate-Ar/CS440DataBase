@@ -78,17 +78,17 @@ public final class DatabaseStorage {
 
     public void initTables() {
         System.out.println("Initializing tables...");
-        final SqlQuery messagesTable = safeQuery("CREATE TABLE IF NOT EXISTS MESSAGES (messageID INT PRIMARY KEY, authorID INT NOT NULL, channelID INT NOT NULL, timeSent INT NOT NULL, messageContent TEXT NOT NULL);");
+        final SqlQuery messagesTable = safeQuery("CREATE TABLE IF NOT EXISTS MESSAGES (messageID BIGINT PRIMARY KEY, authorID BIGINT NOT NULL, channelID BIGINT NOT NULL, timeSent BIGINT NOT NULL, messageContent TEXT NOT NULL, filtered BOOLEAN NOT NULL DEFAULT FALSE);");
         this.update(messagesTable, null);
-        final SqlQuery usersTable = safeQuery("CREATE TABLE IF NOT EXISTS USERS (userID INT PRIMARY KEY, userName TEXT NOT NULL, numViolations INT NOT NULL DEFAULT 0);");
+        final SqlQuery usersTable = safeQuery("CREATE TABLE IF NOT EXISTS USERS (userID BIGINT PRIMARY KEY, userName TEXT NOT NULL, numViolations INT NOT NULL DEFAULT 0);");
         this.update(usersTable, null);
-        final SqlQuery flaggedMessagesTable = safeQuery("CREATE TABLE IF NOT EXISTS FLAGGED_MESSAGES (messageID INT PRIMARY KEY, filterID INT NOT NULL);");
+        final SqlQuery flaggedMessagesTable = safeQuery("CREATE TABLE IF NOT EXISTS FLAGGED_MESSAGES (messageID BIGINT PRIMARY KEY, filterID INT NOT NULL);");
         this.update(flaggedMessagesTable, null);
         final SqlQuery filteredWordsTable = safeQuery("CREATE TABLE IF NOT EXISTS FILTERED_WORDS (filterWordID INT PRIMARY KEY, filterWord TEXT NOT NULL, replacement TEXT NOT NULL);");
         this.update(filteredWordsTable, null);
-        final SqlQuery adminsTable = safeQuery("CREATE TABLE IF NOT EXISTS ADMINS (userID INT PRIMARY KEY);");
+        final SqlQuery adminsTable = safeQuery("CREATE TABLE IF NOT EXISTS ADMINS (userID BIGINT PRIMARY KEY);");
         this.update(adminsTable, null);
-        final SqlQuery filteredChannelsTable = safeQuery("CREATE TABLE IF NOT EXISTS FILTERED_CHANNELS (channelID INT PRIMARY KEY);");
+        final SqlQuery filteredChannelsTable = safeQuery("CREATE TABLE IF NOT EXISTS FILTERED_CHANNELS (channelID BIGINT PRIMARY KEY);");
         this.update(filteredChannelsTable, null);
         }
 
