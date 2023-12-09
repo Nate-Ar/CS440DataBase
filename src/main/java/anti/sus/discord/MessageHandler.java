@@ -122,5 +122,4 @@ class MessageHandler extends ListenerAdapter {
             });
         }
     }
-
 }
