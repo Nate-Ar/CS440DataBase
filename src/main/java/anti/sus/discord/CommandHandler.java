@@ -144,7 +144,6 @@ public class CommandHandler extends ListenerAdapter {
                 removeChannelFromList(event, oldChannelId);
             }
         });
-        event.reply("Channel is not being filtered").setEphemeral(true).queue();
     }
 
     private void removeChannelFromList(SlashCommandInteractionEvent event, long oldChannelId) {
@@ -153,9 +152,9 @@ public class CommandHandler extends ListenerAdapter {
         SqlQuery addChannelQuery = safeQuery("DELETE FROM FILTERED_CHANNELS WHERE channelID = ?;", oldChannelId);
         databaseStorage.update(addChannelQuery, rowsAffected -> {
             if (rowsAffected == 1) {
-                event.getHook().sendMessage("Channel Removed: " + oldChannelId).queue();
+                event.getHook().sendMessage("Channel Removed: " + oldChannelId).setEphemeral(true).queue();
             } else {
-                event.getHook().sendMessage("That Channel is not being filtered").queue();
+                event.getHook().sendMessage("That Channel is not being filtered").setEphemeral(true).queue();
             }
         });
     }
