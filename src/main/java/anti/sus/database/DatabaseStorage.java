@@ -14,15 +14,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 public final class DatabaseStorage {
     private static final byte NUM_THREADS = 4;
     private final Connection connection;
     private final Worker databaseWorker;
+    private final List<FilterWord> filteredWords;
 
     public DatabaseStorage() throws DatabaseException {
         this.databaseWorker = new Worker(NUM_THREADS);
+        this.filteredWords = new CopyOnWriteArrayList<>();
 
         try {
             final String host = "127.0.0.1";
@@ -36,11 +39,22 @@ public final class DatabaseStorage {
             this.connection = DriverManager.getConnection(url, username, password);
 
             this.initTables();
+            this.loadFilterWords();
         } catch (final SQLException ex) {
             throw new DatabaseException("Initializing database connection failed!", ex);
         }
     }
 
+    private void loadFilterWords() {
+        SqlQuery allFilters = safeQuery("SELECT * FROM FILTERED_WORDS;");
+        forEachObject(allFilters, response -> {
+            final String filterWordString = response.get("filterWord").asString();
+            final String replacement = response.get("replacement").asString();
+            final FilterWord filterWord = new FilterWord(filterWordString,replacement);
+
+            filteredWords.add(filterWord);
+        });
+    }
     /**
      * Get some data from the database.
      * If an update is desired, don't use this method, use DatabaseStorage#update() instead.
@@ -91,7 +105,6 @@ public final class DatabaseStorage {
         final SqlQuery filteredChannelsTable = safeQuery("CREATE TABLE IF NOT EXISTS FILTERED_CHANNELS (channelID BIGINT PRIMARY KEY);");
         this.update(filteredChannelsTable, null);
         }
-
 
     /**
      * Shutdown the Worker and the Connection to the database
