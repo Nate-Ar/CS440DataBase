@@ -37,10 +37,16 @@ public class CommandHandler {
     public class SayCommand extends ListenerAdapter {
         @Override
         public void onSlashCommandInteraction(final SlashCommandInteractionEvent event) {
-            if (event.getName().equals("addadmin")){
-                addAdmin(event);
-            } else if (event.getName().equals("rmadmin")) {
-                removeAdmin(event);
+            final String commandName = event.getName();
+
+            switch (commandName) {
+                case "addadmin":
+                    addAdmin(event);
+                    break;
+                case "rmadmin":
+                    removeAdmin(event);
+                    break;
+                default:
             }
         }
     }
