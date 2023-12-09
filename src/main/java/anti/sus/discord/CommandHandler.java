@@ -20,19 +20,27 @@ public class CommandHandler {
     }
 
     public void registerCommands(final Guild guild) {
-        guild.updateCommands().addCommands(getAdminData()).submit().join();
+        guild.updateCommands().addCommands(addAdminCommand(),removeAdminCommand()).submit().join();
     }
 
-    private static CommandData getAdminData() {
-        return Commands.slash("addAdmin", "Add Admin")
+    private static CommandData addAdminCommand() {
+        return Commands.slash("addadmin", "Add Admin")
                 .addOptions(new OptionData(OptionType.USER, "User", "New admin username",true,true));
     }
+
+    private static CommandData removeAdminCommand() {
+        return Commands.slash("rmadmin", "Remove Admin")
+                .addOptions(new OptionData(OptionType.USER, "User", "Admin id for removing",true,true));
+    }
+
 
     public class SayCommand extends ListenerAdapter {
         @Override
         public void onSlashCommandInteraction(final SlashCommandInteractionEvent event) {
-            if (event.getName().equals("addAdmin")){
+            if (event.getName().equals("addadmin")){
                 addAdmin(event);
+            } else if (event.getName().equals("rmadmin")) {
+                removeAdmin(event);
             }
         }
     }
@@ -40,6 +48,11 @@ public class CommandHandler {
          String newAdminId = event.getOption("User").getAsUser().getId();
          SqlQuery adminAdminQuery = safeQuery("INSERT INTO ADMINS VALUE (?);",newAdminId);
          databaseStorage.update(adminAdminQuery,null);
+    }
+    private void removeAdmin(SlashCommandInteractionEvent event){
+        String newAdminId = event.getOption("User").getAsUser().getId();
+        SqlQuery adminAdminQuery = safeQuery("DELETE FROM ADMINS WHERE (?);",newAdminId);
+        databaseStorage.update(adminAdminQuery,null);
     }
 }
 
