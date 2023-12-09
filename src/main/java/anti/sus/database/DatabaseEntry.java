@@ -15,6 +15,10 @@ public final class DatabaseEntry {
         return (double) this.entry;
     }
 
+    public long asLong() {
+        return (long) this.entry;
+    }
+
     public String asString() {
         return (String) this.entry;
     }
