@@ -1,7 +1,5 @@
 package anti.sus;
 
-import java.io.File;
-
 public final class Main {
 
     private static final DiscordChatFilter discordChatFilter;

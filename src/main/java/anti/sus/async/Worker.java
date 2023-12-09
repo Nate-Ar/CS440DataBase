@@ -19,8 +19,10 @@ public final class Worker {
 
     public <T> CompletableFuture<T> submitWork(final Supplier<T> workDefinition) {
         return CompletableFuture.supplyAsync(workDefinition, this.workExecutor).exceptionally(throwable -> {
-            Main.runSync(() -> {throw exception(throwable);});
+            Main.runSync(() -> {
                 throw exception(throwable);
+            });
+            throw exception(throwable);
         });
     }
 

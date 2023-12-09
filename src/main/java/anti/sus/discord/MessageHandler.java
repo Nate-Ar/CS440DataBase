@@ -11,6 +11,7 @@ import java.util.List;
 
 import static anti.sus.database.DatabaseStorage.safeQuery;
 import static anti.sus.database.DatabaseStorage.SqlQuery;
+
 class MessageHandler extends ListenerAdapter {
     private final DatabaseStorage databaseStorage;
 
@@ -53,14 +54,14 @@ class MessageHandler extends ListenerAdapter {
         final List<FilterWord> filterWords = databaseStorage.getFilteredWords();
         for (final FilterWord filterWord : filterWords) {
             if (messageContent.contains(filterWord.filterWord())) {
-                if (filterWord.replacementText().isEmpty()){
+                if (filterWord.replacementText().isEmpty()) {
                     messageContent = "";
                     break;
                 }
                 messageContent = messageContent.replace(filterWord.filterWord(), filterWord.replacementText());
             }
         }
-        if (originalMessage.equals(messageContent)){
+        if (originalMessage.equals(messageContent)) {
             return messageContent;
         }
 //        SqlQuery safeMessage = safeQuery("INSERT INTO FLAGGED_MESSAGES VALUES (?, ?);", message.getIdLong(), );

@@ -54,16 +54,17 @@ public final class DatabaseStorage {
         forEachObject(allFilters, response -> {
             final String filterWordString = response.get("filterWord").asString();
             final String replacement = response.get("replacement").asString();
-            final FilterWord filterWord = new FilterWord(filterWordString,replacement);
+            final FilterWord filterWord = new FilterWord(filterWordString, replacement);
 
             filteredWords.add(filterWord);
         });
     }
+
     /**
      * Get some data from the database.
      * If an update is desired, don't use this method, use DatabaseStorage#update() instead.
      *
-     * @param sqlQuery The SQL query, built with safeQuery()
+     * @param sqlQuery     The SQL query, built with safeQuery()
      * @param rowsConsumer What to do with the rows returned
      */
     public void getRows(final SqlQuery sqlQuery, final Consumer<List<Map<String, DatabaseEntry>>> rowsConsumer) {
@@ -82,7 +83,7 @@ public final class DatabaseStorage {
      * If you need to fetch data at all from the table, or execute queries which
      * both modify and fetch data, use DatabaseStorage#getObjects() instead.
      *
-     * @param sqlQuery The SQL query, constructed with safeQuery()
+     * @param sqlQuery                The SQL query, constructed with safeQuery()
      * @param numRowsAffectedConsumer What to do with the amount of rows affected by the query
      */
     public void update(final SqlQuery sqlQuery, @Nullable final Consumer<Integer> numRowsAffectedConsumer) {
@@ -108,7 +109,7 @@ public final class DatabaseStorage {
         this.update(adminsTable, null);
         final SqlQuery filteredChannelsTable = safeQuery("CREATE TABLE IF NOT EXISTS FILTERED_CHANNELS (channelID BIGINT PRIMARY KEY);");
         this.update(filteredChannelsTable, null);
-        }
+    }
 
     /**
      * Shutdown the Worker and the Connection to the database
@@ -128,7 +129,7 @@ public final class DatabaseStorage {
      * Callers should avoid concatenating user input into the sql String.
      * User input should be passed into the sqlParameters to avoid SQL Injection.
      *
-     * @param sql The base SQL statement with untrusted inputs replaced with ? characters
+     * @param sql        The base SQL statement with untrusted inputs replaced with ? characters
      * @param parameters parameters to be set on the PreparedStatement created from the sql query.
      * @return The constructed SqlQuery
      */
@@ -198,7 +199,6 @@ public final class DatabaseStorage {
 
         return result;
     }
-
 
 
     public static final class SqlQuery {

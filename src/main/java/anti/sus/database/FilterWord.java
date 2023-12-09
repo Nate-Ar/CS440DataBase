@@ -1,3 +1,4 @@
 package anti.sus.database;
 
-public record FilterWord(String filterWord, String replacementText) {}
+public record FilterWord(String filterWord, String replacementText) {
+}

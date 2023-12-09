@@ -40,8 +40,4 @@ public class DiscordBot {
             System.out.println("Shutting down the discord bot was either interrupted or timed out!");
         }
     }
-
-
-
 }
-
