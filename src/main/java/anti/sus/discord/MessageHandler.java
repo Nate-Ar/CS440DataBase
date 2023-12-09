@@ -3,11 +3,13 @@ package anti.sus.discord;
 import anti.sus.database.DatabaseStorage;
 import anti.sus.database.FilterWord;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static anti.sus.database.DatabaseStorage.safeQuery;
 import static anti.sus.database.DatabaseStorage.SqlQuery;
@@ -74,9 +76,37 @@ class MessageHandler extends ListenerAdapter {
         if (shouldDelete) {
             final SqlQuery flaggedMessageQuery = safeQuery("INSERT INTO FLAGGED_MESSAGES VALUES (?, ?);", message.getIdLong(), flaggedWord);
             final SqlQuery updateFlaggedAttribute = safeQuery("UPDATE MESSAGES SET filtered = TRUE WHERE messageID = ?", message.getIdLong());
+            final User author = message.getAuthor();
+            final long authorID = author.getIdLong();
+            final SqlQuery getTotalViolations = safeQuery("SELECT numViolations FROM USERS WHERE userID = ?", authorID);
 
+            message.delete().queue();
             this.databaseStorage.update(flaggedMessageQuery, null);
             this.databaseStorage.update(updateFlaggedAttribute, null);
+            this.databaseStorage.forEachObject(getTotalViolations, row -> {
+                int numViolations = row.get("numViolations").asInt();
+
+                if (numViolations > 3) {
+                    event.getGuild().ban(author, 1, TimeUnit.SECONDS).queue();
+
+                    final SqlQuery resetToZero = safeQuery("UPDATE USERS SET numViolations = 0 WHERE userID = ?;", authorID);
+                    this.databaseStorage.update(resetToZero, rowsAffected -> {
+                        if (rowsAffected == 0) {
+                            System.err.println("Warning! Banned user but couldn't set their violations back to 0! User affected: " + author);
+                        }
+                    });
+
+                    return;
+                }
+
+                message.getChannel().sendMessage(author.getAsMention() + "You have sent a message containing restricted words! You have received a warning. Warnings: " + (numViolations + 1) + " You have " + (3 - (numViolations + 1)) + " warnings left until you are banned!").queue();
+                final SqlQuery updateNumViolations = safeQuery("UPDATE USERS SET numViolations = ? WHERE userID = ?", numViolations + 1, authorID);
+                this.databaseStorage.update(updateNumViolations, rowsAffected -> {
+                    if (rowsAffected == 0) {
+                        System.err.println("Warning! Failed to update number of violations for user: " + author);
+                    }
+                });
+            });
         }
     }
 
