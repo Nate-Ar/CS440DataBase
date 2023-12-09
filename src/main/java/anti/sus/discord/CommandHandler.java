@@ -32,12 +32,12 @@ public class CommandHandler extends ListenerAdapter {
 
     private static CommandData addChannelToFillterCommand() {
         return Commands.slash("addchanneltofilter", "Add channel to filterd list")
-                .addOptions(new OptionData(OptionType.USER, "channel", "Channel to be added", true, true));
+                .addOptions(new OptionData(OptionType.CHANNEL, "channel", "Channel to be added", true, false));
     }
 
     private static CommandData removeChannelFromFillterCommand() {
         return Commands.slash("rmchannelfromfilter", "Remove channel remove filterd list")
-                .addOptions(new OptionData(OptionType.USER, "channel", "Channel to be removed", true, true));
+                .addOptions(new OptionData(OptionType.CHANNEL, "channel", "Channel to be removed", true, false));
     }
 
 
