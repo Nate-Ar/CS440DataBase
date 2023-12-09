@@ -20,7 +20,7 @@ public class CommandHandler {
     }
 
     public void registerCommands(final Guild guild) {
-        guild.updateCommands().addCommands(addAdminCommand(),removeAdminCommand()).submit().join();
+        guild.updateCommands().addCommands(addAdminCommand(), removeAdminCommand()).submit().join();
     }
 
     private static CommandData addAdminCommand() {
