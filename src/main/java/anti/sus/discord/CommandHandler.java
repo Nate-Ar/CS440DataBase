@@ -2,6 +2,7 @@ package anti.sus.discord;
 
 import anti.sus.database.DatabaseStorage;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -12,7 +13,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import static anti.sus.database.DatabaseStorage.safeQuery;
 import static anti.sus.database.DatabaseStorage.SqlQuery;
 
-public class CommandHandler {
+public class CommandHandler extends ListenerAdapter{
     private final DatabaseStorage databaseStorage;
 
     CommandHandler(final DatabaseStorage databaseStorage) {
@@ -25,42 +26,69 @@ public class CommandHandler {
 
     private static CommandData addAdminCommand() {
         return Commands.slash("addadmin", "Add Admin")
-                .addOptions(new OptionData(OptionType.USER, "User", "New admin username",true,true));
+                .addOptions(new OptionData(OptionType.USER, "user", "New admin username",true,false));
     }
 
     private static CommandData removeAdminCommand() {
         return Commands.slash("rmadmin", "Remove Admin")
-                .addOptions(new OptionData(OptionType.USER, "User", "Admin id for removing",true,true));
+                .addOptions(new OptionData(OptionType.USER, "user", "Admin id for removing",true,false));
     }
+    @Override
+    public void onSlashCommandInteraction(final SlashCommandInteractionEvent event) {
+        final String commandName = event.getName();
+        System.out.println("commandName: " + commandName);
 
+        switch (commandName) {
+            case "addadmin":
+                addAdmin(event);
 
-    public class SayCommand extends ListenerAdapter {
-        @Override
-        public void onSlashCommandInteraction(final SlashCommandInteractionEvent event) {
-            final String commandName = event.getName();
+                break;
+            case "rmadmin":
+                removeAdmin(event);
 
-            switch (commandName) {
-                case "addadmin":
-                    event.deferReply().queue();
-                    addAdmin(event);
-                    break;
-                case "rmadmin":
-                    removeAdmin(event);
-                    event.deferReply().queue();
-                    break;
-                default:
-            }
+                break;
+            default:
         }
     }
+
     private void addAdmin(SlashCommandInteractionEvent event){
-         String newAdminId = event.getOption("User").getAsUser().getId();
-         SqlQuery adminAdminQuery = safeQuery("INSERT INTO ADMINS VALUE (?);",newAdminId);
-         databaseStorage.update(adminAdminQuery,null);
+        final User user = event.getOption("user").getAsUser();
+
+        if (user.isBot()) {
+            event.reply("You can't add bots as admins!").setEphemeral(true).queue();
+            return;
+        }
+
+        event.deferReply(true).queue();
+        long newAdminId = user.getIdLong();
+        SqlQuery adminAdminQuery = safeQuery("INSERT IGNORE INTO ADMINS VALUES (?);",newAdminId);
+        databaseStorage.update(adminAdminQuery, rowsAffected -> {
+            if (rowsAffected == 1) {
+                event.getHook().sendMessage("Admin added: " + user.getName()).queue();
+            } else {
+                event.getHook().sendMessage("That user is already an admin!").queue();
+            }
+        });
     }
     private void removeAdmin(SlashCommandInteractionEvent event){
-        String newAdminId = event.getOption("User").getAsUser().getId();
-        SqlQuery adminAdminQuery = safeQuery("DELETE FROM ADMINS WHERE (?);",newAdminId);
-        databaseStorage.update(adminAdminQuery,null);
+        final User user = event.getOption("user").getAsUser();
+
+        if (user.isBot()) {
+            event.reply("Bots can't be admins!").setEphemeral(true).queue();
+            return;
+        }
+
+        event.deferReply(true).queue();
+
+        final long oldAdminId = user.getIdLong();
+        final SqlQuery adminAdminQuery = safeQuery("DELETE FROM ADMINS WHERE userID = ?;", oldAdminId);
+        databaseStorage.update(adminAdminQuery,rowsAffected -> {
+            if (rowsAffected == 1) {
+                event.getHook().sendMessage("Admin removed: " + user.getName()).queue();
+            } else {
+                event.getHook().sendMessage("That user is not an admin!").queue();
+            }
+        });
     }
 }
 
