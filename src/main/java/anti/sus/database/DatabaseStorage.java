@@ -52,14 +52,19 @@ public final class DatabaseStorage {
 
 
     private void loadFilterWords() {
-        SqlQuery allFilters = safeQuery("SELECT * FROM FILTERED_WORDS;");
-        forEachObject(allFilters, response -> {
+        System.out.println("Loading filters");
+        final SqlQuery allFilters = safeQuery("SELECT * FROM FILTERED_WORDS;");
+        forEachObjectSync(allFilters, response -> {
             final String filterWordString = response.get("filterWord").asString();
-            final String replacement = response.get("replacement").asString();
-            final FilterWord filterWord = new FilterWord(filterWordString, replacement);
+            final int filterWordNumViolations = response.get("numViolations").asInt();
+            final FilterWord filterWord = new FilterWord(filterWordString, filterWordNumViolations);
 
             filteredWords.add(filterWord);
         });
+    }
+
+    public void forEachObjectSync(final SqlQuery sqlQuery, final Consumer<Map<String, DatabaseEntry>> responseConsumer) {
+        this.getRowsSync(sqlQuery).forEach(responseConsumer);
     }
 
     /**
@@ -74,6 +79,10 @@ public final class DatabaseStorage {
                 this.databaseWorker.submitWork(() -> getObjects0(sqlQuery));
 
         queryResultFuture.thenAccept(rowsConsumer);
+    }
+
+    public List<Map<String, DatabaseEntry>> getRowsSync(final SqlQuery sqlQuery) {
+        return this.getObjects0(sqlQuery);
     }
 
     public void forEachObject(final SqlQuery sqlQuery, final Consumer<Map<String, DatabaseEntry>> rowConsumer) {
@@ -97,20 +106,24 @@ public final class DatabaseStorage {
         }
     }
 
+    public void updateSync(final SqlQuery sqlQuery) {
+        update0(sqlQuery);
+    }
+
     public void initTables() {
         System.out.println("Initializing tables...");
         final SqlQuery messagesTable = safeQuery("CREATE TABLE IF NOT EXISTS MESSAGES (messageID BIGINT PRIMARY KEY, authorID BIGINT NOT NULL, channelID BIGINT NOT NULL, timeSent BIGINT NOT NULL, messageContent TEXT NOT NULL, filtered BOOLEAN NOT NULL DEFAULT FALSE);");
-        this.update(messagesTable, null);
+        this.updateSync(messagesTable);
         final SqlQuery usersTable = safeQuery("CREATE TABLE IF NOT EXISTS USERS (userID BIGINT PRIMARY KEY, userName TEXT NOT NULL, numViolations INT NOT NULL DEFAULT 0);");
-        this.update(usersTable, null);
+        this.updateSync(usersTable);
         final SqlQuery flaggedMessagesTable = safeQuery("CREATE TABLE IF NOT EXISTS FLAGGED_MESSAGES (messageID BIGINT PRIMARY KEY, filterWord TEXT NOT NULL);");
-        this.update(flaggedMessagesTable, null);
-        final SqlQuery filteredWordsTable = safeQuery("CREATE TABLE IF NOT EXISTS FILTERED_WORDS (filterWord TEXT PRIMARY KEY, replacement TEXT NOT NULL);");
-        this.update(filteredWordsTable, null);
+        this.updateSync(flaggedMessagesTable);
+        final SqlQuery filteredWordsTable = safeQuery("CREATE TABLE IF NOT EXISTS FILTERED_WORDS (filterWord TEXT UNIQUE, numViolations INT NOT NULL);");
+        this.updateSync(filteredWordsTable);
         final SqlQuery adminsTable = safeQuery("CREATE TABLE IF NOT EXISTS ADMINS (userID BIGINT PRIMARY KEY);");
-        this.update(adminsTable, null);
+        this.updateSync(adminsTable);
         final SqlQuery filteredChannelsTable = safeQuery("CREATE TABLE IF NOT EXISTS FILTERED_CHANNELS (channelID BIGINT PRIMARY KEY);");
-        this.update(filteredChannelsTable, null);
+        this.updateSync(filteredChannelsTable);
     }
 
     /**
