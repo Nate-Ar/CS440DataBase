@@ -53,8 +53,8 @@ public final class DatabaseStorage {
         SqlQuery allFilters = safeQuery("SELECT * FROM FILTERED_WORDS;");
         forEachObject(allFilters, response -> {
             final String filterWordString = response.get("filterWord").asString();
-            final String replacement = response.get("replacement").asString();
-            final FilterWord filterWord = new FilterWord(filterWordString, replacement);
+            final int filterWordNumViolations = response.get("numViolations").asInt();
+            final FilterWord filterWord = new FilterWord(filterWordString, filterWordNumViolations);
 
             filteredWords.add(filterWord);
         });
@@ -103,7 +103,7 @@ public final class DatabaseStorage {
         this.update(usersTable, null);
         final SqlQuery flaggedMessagesTable = safeQuery("CREATE TABLE IF NOT EXISTS FLAGGED_MESSAGES (messageID BIGINT PRIMARY KEY, filterWord TEXT NOT NULL);");
         this.update(flaggedMessagesTable, null);
-        final SqlQuery filteredWordsTable = safeQuery("CREATE TABLE IF NOT EXISTS FILTERED_WORDS (filterWord TEXT PRIMARY KEY, replacement TEXT NOT NULL);");
+        final SqlQuery filteredWordsTable = safeQuery("CREATE TABLE IF NOT EXISTS FILTERED_WORDS (filterWord TEXT PRIMARY KEY, numViolations INT NOT NULL);");
         this.update(filteredWordsTable, null);
         final SqlQuery adminsTable = safeQuery("CREATE TABLE IF NOT EXISTS ADMINS (userID BIGINT PRIMARY KEY);");
         this.update(adminsTable, null);
