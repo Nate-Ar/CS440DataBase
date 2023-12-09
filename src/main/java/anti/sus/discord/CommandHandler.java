@@ -41,10 +41,12 @@ public class CommandHandler {
 
             switch (commandName) {
                 case "addadmin":
+                    event.deferReply().queue();
                     addAdmin(event);
                     break;
                 case "rmadmin":
                     removeAdmin(event);
+                    event.deferReply().queue();
                     break;
                 default:
             }
