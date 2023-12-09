@@ -13,7 +13,7 @@ import java.util.Properties;
 
 public class DiscordBot {
     private static final Duration MAX_SHUTDOWN_TIME = Duration.ofSeconds(15L);
-    private static final Collection<GatewayIntent> INTENTS = List.of(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT);
+    private static final Collection<GatewayIntent> INTENTS = List.of(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS);
     private static final Collection<CacheFlag> DISABLED_CACHES = List.of(CacheFlag.VOICE_STATE, CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.SCHEDULED_EVENTS, CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS);
     private final JDA api;
 
