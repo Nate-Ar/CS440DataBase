@@ -79,5 +79,4 @@ class MessageHandler extends ListenerAdapter {
             this.databaseStorage.update(updateFlaggedAttribute, null);
         }
     }
-
 }
