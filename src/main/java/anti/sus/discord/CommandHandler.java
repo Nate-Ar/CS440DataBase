@@ -2,15 +2,15 @@ package anti.sus.discord;
 
 import anti.sus.database.DatabaseStorage;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+
+import static anti.sus.database.DatabaseStorage.safeQuery;
+import static anti.sus.database.DatabaseStorage.SqlQuery;
 
 public class CommandHandler {
     private final DatabaseStorage databaseStorage;
@@ -38,7 +38,8 @@ public class CommandHandler {
     }
     private void addAdmin(SlashCommandInteractionEvent event){
          String newAdminId = event.getOption("User").getAsUser().getId();
-
+         SqlQuery adminAdminQuery = safeQuery("INSERT INTO ADMINS VALUE (?);",newAdminId);
+         databaseStorage.update(adminAdminQuery,null);
     }
 }
 
