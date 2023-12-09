@@ -3,6 +3,8 @@ package anti.sus.discord;
 import anti.sus.database.DatabaseStorage;
 import anti.sus.database.FilterWord;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -29,7 +31,7 @@ class MessageHandler extends ListenerAdapter {
         }
 
         this.getMessageUpdateQuery(event);
-        this.filterMessage(event);
+        this.filterMessageCheck(event);
     }
 
     private void getMessageUpdateQuery(MessageReceivedEvent event) {
@@ -56,13 +58,24 @@ class MessageHandler extends ListenerAdapter {
         return safeMessage;
     }
 
-    private void filterMessage(MessageReceivedEvent event) {
-        final List<FilterWord> filterWords = databaseStorage.getFilteredWords();
+    private void filterMessageCheck(MessageReceivedEvent event) {
         final Message message = event.getMessage();
+        final MessageChannel channel = message.getChannel();
+        final long messageChannelId = channel.getIdLong();
+
+        SqlQuery listOfchannelsQuery = safeQuery("SELECT * FROM FILTERED_CHANNELS;");
+        databaseStorage.forEachObject(listOfchannelsQuery, row -> {
+            if (row.get("channelID").asLong() == messageChannelId) {
+                filterThoseWords(message, event);
+            }
+        });
+    }
+
+    private void filterThoseWords(Message message, MessageReceivedEvent event) {
+        final List<FilterWord> filterWords = databaseStorage.getFilteredWords();
         final String originalMessage = message.getContentRaw();
         boolean shouldDelete = false;
         String flaggedWord = "";
-
         for (final FilterWord filterWord : filterWords) {
             if (originalMessage.contains(filterWord.getFilterWord())) {
                 filterWord.setNumViolations(filterWord.getNumViolations() + 1);
