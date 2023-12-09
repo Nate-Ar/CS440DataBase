@@ -21,6 +21,10 @@ public class DiscordBot {
         final String token = envFile.getProperty("bot-token");
         final JDABuilder jdaBuilder = JDABuilder.create(token, INTENTS).disableCache(DISABLED_CACHES);
         this.api = jdaBuilder.build();
+
+        final CommandHandler commandHandler = new CommandHandler(databaseStorage);
+        this.api.getGuilds().forEach(commandHandler::registerCommands);
+
         this.api.addEventListener(new MessageHandler(databaseStorage));
     }
 

@@ -1,14 +1,21 @@
 package anti.sus.discord;
 
-import net.dv8tion.jda.api.JDA;
+import anti.sus.database.DatabaseStorage;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class CommandHandler {
-    CommandHandler(JDA api){
-        api.updateCommands().addCommands(getAdminData());
+    private final DatabaseStorage databaseStorage;
+
+    CommandHandler(final DatabaseStorage databaseStorage) {
+        this.databaseStorage = databaseStorage;
+    }
+
+    public void registerCommands(final Guild guild) {
+        guild.updateCommands().addCommands(getAdminData()).submit().join();
     }
 
     private static CommandData getAdminData() {
