@@ -47,7 +47,7 @@ class MessageHandler extends ListenerAdapter {
         return safeQuery("INSERT INTO MESSAGES VALUES (?,?,?,?,?, DEFAULT);", messageId, authorId, channelId, messageTime, messageContent);
     }
 
-    private String filterMessage(MessageReceivedEvent event) {
+    private void filterMessage(MessageReceivedEvent event) {
         final Message message = event.getMessage();
         String messageContent = message.getContentRaw();
         final String originalMessage = messageContent;
@@ -59,12 +59,22 @@ class MessageHandler extends ListenerAdapter {
                     break;
                 }
                 messageContent = messageContent.replace(filterWord.filterWord(), filterWord.replacementText());
+                if (!originalMessage.equals(messageContent)) {
+                    SqlQuery safeMessage = safeQuery("INSERT INTO FLAGGED_MESSAGES VALUES (?, ?);", message.getIdLong(),filterWord.replacementText());
+                }
             }
         }
-        if (originalMessage.equals(messageContent)) {
-            return messageContent;
-        }
-//        SqlQuery safeMessage = safeQuery("INSERT INTO FLAGGED_MESSAGES VALUES (?, ?);", message.getIdLong(), );
+
+    }
+    private void addAdmin(MessageReceivedEvent event){
+        final Message message = event.getMessage();
+        final String messageContent = message.getContentRaw();
+////        asuuming command is "/add-admin:Useranme:
+//        if (event.){
+//            String[] newAdmin = messageContent.split(":");
+//            SqlQuery userId = safeQuery("Select userId From USERS WHERE userName IS ?;",newAdmin[1]);
+//            SqlQuery addAdminQuery = safeQuery("INSERT INTO ADMINS VALUES (?);",userId);
+//        }
     }
 
 }

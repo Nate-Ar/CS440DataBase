@@ -27,6 +27,7 @@ public final class DatabaseStorage {
         this.databaseWorker = new Worker(NUM_THREADS);
         this.filteredWords = new CopyOnWriteArrayList<>();
 
+
         try {
             final String host = "127.0.0.1";
             final String port = "3306";
@@ -48,6 +49,7 @@ public final class DatabaseStorage {
     public List<FilterWord> getFilteredWords() {
         return new ArrayList<>(filteredWords);
     }
+
 
     private void loadFilterWords() {
         SqlQuery allFilters = safeQuery("SELECT * FROM FILTERED_WORDS;");
