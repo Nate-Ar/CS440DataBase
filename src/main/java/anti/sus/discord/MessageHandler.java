@@ -79,14 +79,5 @@ class MessageHandler extends ListenerAdapter {
             this.databaseStorage.update(updateFlaggedAttribute, null);
         }
     }
-    private void addAdmin(MessageReceivedEvent event){
-        final Message message = event.getMessage();
-        final String messageContent = message.getContentRaw();
-////        asuuming command is "/add-admin:Useranme:
-//        if (event.){
-//            String[] newAdmin = messageContent.split(":");
-//            SqlQuery userId = safeQuery("Select userId From USERS WHERE userName IS ?;",newAdmin[1]);
-//            SqlQuery addAdminQuery = safeQuery("INSERT INTO ADMINS VALUES (?);",userId);
-//        }
-    }
+
 }
