@@ -30,7 +30,7 @@ class MessageHandler extends ListenerAdapter {
         }
 
         this.updateMesssageTable(event);
-        this.ChannelFilterChack(event);
+        this.checkFilteredChannel(event);
     }
 
     private void updateMesssageTable(MessageReceivedEvent event) {
@@ -57,7 +57,7 @@ class MessageHandler extends ListenerAdapter {
         return safeMessage;
     }
 
-    private void ChannelFilterChack(MessageReceivedEvent event) {
+    private void checkFilteredChannel(MessageReceivedEvent event) {
         final MessageChannel channel = event.getChannel();
         final long messageChannelId = channel.getIdLong();
 
