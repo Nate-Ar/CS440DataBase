@@ -6,7 +6,7 @@ USE discordfilter;
 SELECT * FROM ADMINS;
 SELECT * FROM FILTERED_CHANNELS;
 SELECT * FROM FILTERED_WORDS;
-SELECT * FROM MESSAGES;
+SELECT messageId AS messageId_______, authorId AS authorId_________, channelId AS channelId________, FROM_UNIXTIME(timeSent) AS timeSentFriendly, messageContent, filtered FROM MESSAGES;
 SELECT * FROM USERS;
 
 -- filter word ORDER BY number of violations
@@ -29,7 +29,7 @@ SELECT MAX(numViolations) FROM USERS;
 -- add group by query
 
 -- joins the message and user tables to show the username of the the message sent
-SELECT USER.userName, USER.userID, MESSAGES.authorID
-From USER INNER JOIN MESSAGES ON USER.userID=MESSAGES.authorID;
+SELECT USERS.userName, USERS.userID, MESSAGES.authorID
+From USERS INNER JOIN MESSAGES ON USERS.userID=MESSAGES.authorID;
 
 

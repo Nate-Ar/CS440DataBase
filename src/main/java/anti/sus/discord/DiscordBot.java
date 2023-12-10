@@ -26,7 +26,7 @@ public class DiscordBot {
         this.api.getGuilds().forEach(commandHandler::registerCommands);
 
         this.api.addEventListener(new MessageHandler(databaseStorage));
-        this.api.addEventListener(new UserHandler(databaseStorage));
+        this.api.addEventListener(new UserHandler(databaseStorage, commandHandler));
         this.api.addEventListener(commandHandler);
     }
 

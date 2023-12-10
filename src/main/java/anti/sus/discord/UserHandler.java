@@ -12,9 +12,11 @@ import static anti.sus.database.DatabaseStorage.safeQuery;
 
 public final class UserHandler extends ListenerAdapter {
     private final DatabaseStorage databaseStorage;
+    private final CommandHandler commandHandler;
 
-    UserHandler(final DatabaseStorage databaseStorage) {
+    UserHandler(final DatabaseStorage databaseStorage, final CommandHandler commandHandler) {
         this.databaseStorage = databaseStorage;
+        this.commandHandler = commandHandler;
     }
 
     @Override
@@ -39,5 +41,6 @@ public final class UserHandler extends ListenerAdapter {
 
             this.databaseStorage.update(addExistingUserQuery, null);
         });
+        this.commandHandler.registerCommands(event.getGuild());
     }
 }

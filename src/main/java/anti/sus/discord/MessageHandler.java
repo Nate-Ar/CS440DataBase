@@ -80,6 +80,12 @@ class MessageHandler extends ListenerAdapter {
         for (final FilterWord filterWord : filterWords) {
             if (originalMessage.contains(filterWord.getFilterWord())) {
                 filterWord.setNumViolations(filterWord.getNumViolations() + 1);
+                final SqlQuery updateNumViolations = safeQuery("UPDATE FILTERED_WORDS SET numViolations = ? WHERE filterWord = ?", filterWord.getNumViolations(), filterWord.getFilterWord());
+                this.databaseStorage.update(updateNumViolations, rowsAffected -> {
+                    if (rowsAffected == 0) {
+                        System.err.println("Warning! Updating filter word: " + filterWord.getFilterWord() + " in the database failed!");
+                    }
+                });
                 flaggedWord = filterWord.getFilterWord();
                 shouldDelete = true;
 
@@ -100,15 +106,17 @@ class MessageHandler extends ListenerAdapter {
             this.databaseStorage.forEachObject(getTotalViolations, row -> {
                 int numViolations = row.get("numViolations").asInt();
 
-                if (numViolations > 3) {
-                    event.getGuild().ban(author, 1, TimeUnit.SECONDS).queue();
+                System.out.println("numViolations: " + numViolations);
 
+                if (numViolations >= 3) {
+                    System.out.println("Trying to ban");
                     final SqlQuery resetToZero = safeQuery("UPDATE USERS SET numViolations = 0 WHERE userID = ?;", authorID);
                     this.databaseStorage.update(resetToZero, rowsAffected -> {
                         if (rowsAffected == 0) {
                             System.err.println("Warning! Banned user but couldn't set their violations back to 0! User affected: " + author);
                         }
                     });
+                    event.getGuild().ban(author, 1, TimeUnit.SECONDS).queue();
 
                     return;
                 }
