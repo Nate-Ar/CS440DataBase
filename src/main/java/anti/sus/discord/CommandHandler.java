@@ -1,6 +1,7 @@
 package anti.sus.discord;
 
 import anti.sus.database.DatabaseStorage;
+import anti.sus.database.FilterWord;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.unions.GuildChannelUnion;
@@ -183,6 +184,7 @@ public class CommandHandler extends ListenerAdapter {
         databaseStorage.update(addFilterWordQuery, rowsAffected -> {
             if (rowsAffected == 1) {
                 event.getHook().sendMessage(user.getName()+" added " + newFilterWord).queue();
+                this.databaseStorage.addFilterWord(new FilterWord(newFilterWord, 0));
             } else {
                 event.getHook().sendMessage("already a FilterWord").queue();
             }
@@ -200,6 +202,7 @@ public class CommandHandler extends ListenerAdapter {
         databaseStorage.update(addFilterWordQuery, rowsAffected -> {
             if (rowsAffected == 1) {
                 event.getHook().sendMessage(user.getName()+" Removed " + oldFilterWord + " From FilteredWordTable").queue();
+                this.databaseStorage.removeFilterWord(new FilterWord(oldFilterWord, 0));
             } else {
                 event.getHook().sendMessage("Not a FilterWord").queue();
             }
