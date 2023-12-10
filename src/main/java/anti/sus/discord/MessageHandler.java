@@ -29,11 +29,11 @@ class MessageHandler extends ListenerAdapter {
             return;
         }
 
-        this.updateMesssageTalve(event);
+        this.updateMesssageTable(event);
         this.ChannelFilterChack(event);
     }
 
-    private void updateMesssageTalve(MessageReceivedEvent event) {
+    private void updateMesssageTable(MessageReceivedEvent event) {
         final SqlQuery safeMessage = messageUpdateQuery(event);
 
         this.databaseStorage.update(safeMessage, rowsAffected -> {

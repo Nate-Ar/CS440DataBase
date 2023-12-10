@@ -68,30 +68,24 @@ public class CommandHandler extends ListenerAdapter {
         switch (commandName) {
             case "addadmin":
                 addAdmin(event);
-
                 break;
             case "rmadmin":
                 removeAdmin(event);
-
                 break;
             case "rmchannelfromfilter":
                 removeChannelFromFilterList(event);
-
                 break;
 
             case "addchanneltofilter":
                 addChannelToFilterList(event);
-
                 break;
 
             case "addfilterword":
                 addFilterWordToList(event);
-
                 break;
 
             case "rmfilterword":
                 removeFilterWordFromList(event);
-
                 break;
 
             default:
