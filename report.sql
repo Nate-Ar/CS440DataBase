@@ -27,7 +27,7 @@ SELECT MIN(numViolations) FROM USERS;
 -- user with the Highest violations
 SELECT MAX(numViolations) FROM USERS;
 -- add group by query
-SELECT COUNT(messageID), timeSent FROM MESSAGES GROUP BY userID;
+SELECT COUNT(messageID), timeSent FROM MESSAGES GROUP BY authorID;
 -- joins the message and user tables to show the username of the the message sent
 SELECT USERS.userName, USERS.userID, MESSAGES.authorID
 From USERS INNER JOIN MESSAGES ON USERS.userID=MESSAGES.authorID;
