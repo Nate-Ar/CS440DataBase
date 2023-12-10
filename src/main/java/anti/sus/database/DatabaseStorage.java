@@ -51,6 +51,24 @@ public final class DatabaseStorage {
         return new ArrayList<>(filteredWords);
     }
 
+    public void addFilterWord(final FilterWord filterWord) {
+        for (final FilterWord otherFilterWord : this.filteredWords) {
+            if (otherFilterWord.getFilterWord().equals(filterWord.getFilterWord())) {
+                return;
+            }
+        }
+
+        this.filteredWords.add(filterWord);
+    }
+
+    public void removeFilterWord(final FilterWord filterWord) {
+        this.filteredWords.removeIf(
+                otherFilterWord -> otherFilterWord.getFilterWord().equals(
+                        filterWord.getFilterWord()
+                )
+        );
+    }
+
 
     private void loadFilterWords() {
         System.out.println("Loading filters");
