@@ -3,9 +3,8 @@ package anti.sus.discord;
 import anti.sus.database.DatabaseStorage;
 import anti.sus.database.FilterWord;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.Channel;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -13,8 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static anti.sus.database.DatabaseStorage.safeQuery;
 import static anti.sus.database.DatabaseStorage.SqlQuery;
+import static anti.sus.database.DatabaseStorage.safeQuery;
 
 class MessageHandler extends ListenerAdapter {
     private final DatabaseStorage databaseStorage;
@@ -30,13 +29,12 @@ class MessageHandler extends ListenerAdapter {
             return;
         }
 
-        this.getMessageUpdateQuery(event);
-        this.filterMessageCheck(event);
+        this.updateMesssageTalve(event);
+        this.ChannelFilterChack(event);
     }
 
-    private void getMessageUpdateQuery(MessageReceivedEvent event) {
-        final Message message = event.getMessage();
-        final SqlQuery safeMessage = getMessageUpdateQuery(event, message);
+    private void updateMesssageTalve(MessageReceivedEvent event) {
+        final SqlQuery safeMessage = messageUpdateQuery(event);
 
         this.databaseStorage.update(safeMessage, rowsAffected -> {
             if (rowsAffected != 1) {
@@ -47,7 +45,8 @@ class MessageHandler extends ListenerAdapter {
     }
 
     @NotNull
-    private static SqlQuery getMessageUpdateQuery(MessageReceivedEvent event, Message message) {
+    private static SqlQuery messageUpdateQuery(MessageReceivedEvent event) {
+        final Message message = event.getMessage();
         final String messageContent = message.getContentRaw();
         final long messageTime = message.getTimeCreated().toEpochSecond();
         final long authorId = event.getAuthor().getIdLong();
@@ -58,20 +57,22 @@ class MessageHandler extends ListenerAdapter {
         return safeMessage;
     }
 
-    private void filterMessageCheck(MessageReceivedEvent event) {
-        final Message message = event.getMessage();
-        final MessageChannel channel = message.getChannel();
+    private void ChannelFilterChack(MessageReceivedEvent event) {
+        final MessageChannel channel = event.getChannel();
         final long messageChannelId = channel.getIdLong();
 
         SqlQuery listOfchannelsQuery = safeQuery("SELECT * FROM FILTERED_CHANNELS;");
         databaseStorage.forEachObject(listOfchannelsQuery, row -> {
             if (row.get("channelID").asLong() == messageChannelId) {
-                filterThoseWords(message, event);
+                System.out.println("Fired");
+                filterThoseWords(event);
             }
         });
     }
 
-    private void filterThoseWords(Message message, MessageReceivedEvent event) {
+// not loading the filter word at all
+    private void filterThoseWords(MessageReceivedEvent event) {
+        final Message message = event.getMessage();
         final List<FilterWord> filterWords = databaseStorage.getFilteredWords();
         final String originalMessage = message.getContentRaw();
         boolean shouldDelete = false;

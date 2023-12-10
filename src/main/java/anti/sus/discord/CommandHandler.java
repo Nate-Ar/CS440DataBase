@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
 
 import static anti.sus.database.DatabaseStorage.SqlQuery;
 import static anti.sus.database.DatabaseStorage.safeQuery;
@@ -22,7 +23,9 @@ public class CommandHandler extends ListenerAdapter {
     }
 
     public void registerCommands(final Guild guild) {
-        guild.updateCommands().addCommands(addAdminCommand(), removeAdminCommand(), addChannelToFillterCommand(), removeChannelFromFillterCommand()).submit().join();
+        guild.updateCommands().addCommands(addAdminCommand(), removeAdminCommand(),
+                addChannelToFillterCommand(), removeChannelFromFillterCommand(),
+                addFilterWordCommand(), removeFilterWordCommand()).submit().join();
     }
 
     private static CommandData addAdminCommand() {
@@ -45,6 +48,17 @@ public class CommandHandler extends ListenerAdapter {
         return Commands.slash("rmadmin", "Remove Admin")
                 .addOptions(new OptionData(OptionType.USER, "user", "Admin id for removing", true, false));
     }
+
+    private static CommandData addFilterWordCommand() {
+        return Commands.slash("addfilterword", "adds new filter word to table")
+                .addOptions(new OptionData(OptionType.STRING, "word", "Word to be added", true, true));
+    }
+
+    private static CommandData removeFilterWordCommand() {
+        return Commands.slash("rmfilterword", "removes filter word from table")
+                .addOptions(new OptionData(OptionType.STRING, "word", "Word to be removed", true, true));
+    }
+
 
     @Override
     public void onSlashCommandInteraction(final SlashCommandInteractionEvent event) {
@@ -70,6 +84,16 @@ public class CommandHandler extends ListenerAdapter {
 
                 break;
 
+            case "addfilterword":
+                addFilterWordToList(event);
+
+                break;
+
+            case "rmfilterword":
+                removeFilterWordFromList(event);
+
+                break;
+
             default:
         }
     }
@@ -84,6 +108,7 @@ public class CommandHandler extends ListenerAdapter {
 
         event.deferReply(true).queue();
         long newAdminId = user.getIdLong();
+
         SqlQuery adminAdminQuery = safeQuery("INSERT IGNORE INTO ADMINS VALUES (?);", newAdminId);
         databaseStorage.update(adminAdminQuery, rowsAffected -> {
             if (rowsAffected == 1) {
@@ -125,38 +150,67 @@ public class CommandHandler extends ListenerAdapter {
         event.deferReply(true).queue();
 
         long newChannelId = channel.getIdLong();
+        User user = event.getUser();
         SqlQuery addChannelQuery = safeQuery("INSERT IGNORE INTO FILTERED_CHANNELS VALUES (?);", newChannelId);
         databaseStorage.update(addChannelQuery, rowsAffected -> {
             if (rowsAffected == 1) {
-                event.getHook().sendMessage("Channel added: " + newChannelId).queue();
+                event.getHook().sendMessage(user.getName()+ " added " + channel.getName() + " to FilteredChannelTable" ).queue();
             } else {
                 event.getHook().sendMessage("That Channel is already being filtered").queue();
             }
         });
     }
-
+// makes sure channel id is on the filter list in the first place
     private void removeChannelFromFilterList(SlashCommandInteractionEvent event) {
         final GuildChannelUnion channel = event.getOption("channel").getAsChannel();
         final long oldChannelId = channel.getIdLong();
-        SqlQuery listOfchannelsQuery = safeQuery("SELECT * FROM FILTERED_CHANNELS;");
-        databaseStorage.forEachObject(listOfchannelsQuery, row -> {
-            if (row.get("channelID").asLong() == oldChannelId) {
-                removeChannelFromList(event, oldChannelId);
+        final User user = event.getUser();
+
+        event.deferReply(true).queue();
+
+
+        SqlQuery addFilterWordQuery = safeQuery("DELETE FROM FILTERED_CHANNELS WHERE channelID = ?;", oldChannelId);
+        databaseStorage.update(addFilterWordQuery, rowsAffected -> {
+            if (rowsAffected == 1) {
+                event.getHook().sendMessage(user.getName() + " Removed " + channel.getName() + " From FilteredChannelTable").queue();
+            } else {
+                event.getHook().sendMessage("Not a FilterWord").queue();
             }
         });
     }
 
-    private void removeChannelFromList(SlashCommandInteractionEvent event, long oldChannelId) {
+    private void addFilterWordToList(SlashCommandInteractionEvent event){
+        final String newFilterWord = event.getOption("word").getAsString();
+        final User user = event.getUser();
+
         event.deferReply(true).queue();
 
-        SqlQuery addChannelQuery = safeQuery("DELETE FROM FILTERED_CHANNELS WHERE channelID = ?;", oldChannelId);
-        databaseStorage.update(addChannelQuery, rowsAffected -> {
+        SqlQuery addFilterWordQuery = safeQuery("INSERT IGNORE INTO FILTERED_WORDS VALUES (?,0);", newFilterWord);
+        databaseStorage.update(addFilterWordQuery, rowsAffected -> {
             if (rowsAffected == 1) {
-                event.getHook().sendMessage("Channel Removed: " + oldChannelId).setEphemeral(true).queue();
+                event.getHook().sendMessage(user.getName()+" added " + newFilterWord).queue();
             } else {
-                event.getHook().sendMessage("That Channel is not being filtered").setEphemeral(true).queue();
+                event.getHook().sendMessage("already a FilterWord").queue();
             }
         });
+
+    }
+
+    private void removeFilterWordFromList(SlashCommandInteractionEvent event){
+        final String oldFilterWord = event.getOption("word").getAsString();@NotNull
+        final User user = event.getUser();
+
+        event.deferReply(true).queue();
+
+        SqlQuery addFilterWordQuery = safeQuery("DELETE FROM FILTERED_WORDS WHERE filterWord = ?;", oldFilterWord);
+        databaseStorage.update(addFilterWordQuery, rowsAffected -> {
+            if (rowsAffected == 1) {
+                event.getHook().sendMessage(user.getName()+" Removed " + oldFilterWord + " From FilteredWordTable").queue();
+            } else {
+                event.getHook().sendMessage("Not a FilterWord").queue();
+            }
+        });
+
     }
 }
 

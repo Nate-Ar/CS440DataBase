@@ -40,6 +40,7 @@ public final class DatabaseStorage {
             this.connection = DriverManager.getConnection(url, username, password);
 
             this.initTables();
+//
             this.loadFilterWords();
         } catch (final SQLException ex) {
             throw new DatabaseException("Initializing database connection failed!", ex);
